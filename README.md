@@ -13,6 +13,9 @@ My very own personal dotfiles
 /.tmux         - tmux files <br/>
 /.tmux.conf    - tmux config <br/>
 /.vimrc        - vim config <br/>
+/bin/omarchy-bg-random - rotate the Omarchy wallpaper at random (interval: $OMARCHY_BG_INTERVAL) <br/>
+/omarchy/sddm - Omarchy login theme with clickable user tiles; `sudo omarchy/sddm/install.sh` installs it, syncs Omarchy colours, turns autologin off <br/>
+/omarchy/users/copy-omarchy-setup.sh - `sudo ... USER` gives another local user your Omarchy desktop (keybindings, waybar, theme), not your personal data <br/>
 /.zsh_aliases - zsh aliases.  Need to pull some from .zshrc <br/>
 /.zshrc        - Zshell config. <br/>
 
