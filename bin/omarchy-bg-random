@@ -1,0 +1,38 @@
+#!/bin/bash
+# Rotate the current Omarchy theme's wallpaper at random, forever.
+# Interval (seconds) via $OMARCHY_BG_INTERVAL, default 900 (15 min).
+# Draws from both the user folder and the theme's shipped backgrounds:
+#   ~/.config/omarchy/backgrounds/<theme>/   and   current theme's backgrounds/
+
+INTERVAL="${OMARCHY_BG_INTERVAL:-900}"
+LINK="$HOME/.config/omarchy/current/background"
+
+pick_and_link() {
+  local THEME_NAME USER_BG THEME_BG TOTAL CURRENT NEW
+  THEME_NAME=$(cat "$HOME/.config/omarchy/current/theme.name" 2>/dev/null)
+  USER_BG="$HOME/.config/omarchy/backgrounds/$THEME_NAME/"
+  THEME_BG="$HOME/.config/omarchy/current/theme/backgrounds/"
+
+  mapfile -d '' -t BG < <(find -L "$USER_BG" "$THEME_BG" -maxdepth 1 -type f -print0 2>/dev/null | sort -z)
+  TOTAL=${#BG[@]}
+  (( TOTAL == 0 )) && return 1
+
+  CURRENT=""; [[ -L $LINK ]] && CURRENT=$(readlink "$LINK")
+  NEW="$CURRENT"
+  if (( TOTAL == 1 )); then
+    NEW="${BG[0]}"
+  else
+    while [[ "$NEW" == "$CURRENT" ]]; do NEW="${BG[RANDOM % TOTAL]}"; done
+  fi
+  ln -nsf "$NEW" "$LINK"
+}
+
+# Kill our swaybg when the service stops so we don't leak instances.
+trap 'pkill -x swaybg; exit 0' TERM INT
+
+while true; do
+  pick_and_link
+  pkill -x swaybg
+  swaybg -i "$LINK" -m fill >/dev/null 2>&1 &
+  sleep "$INTERVAL"
+done
